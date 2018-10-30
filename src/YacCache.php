@@ -13,7 +13,7 @@ class YacCache {
 	/**
 	 * @param string $prefix
 	 *
-	 * @return \server\Cache\YacCache
+	 * @return \AtServer\YacCache
 	 */
 	static function getYacInstance($prefix='') {
 		if(is_null(self::$instance)){

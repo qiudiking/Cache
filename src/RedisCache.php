@@ -9,8 +9,8 @@
 namespace AtServer;
 
 use Noodlehaus\Config;
-use server\Exception\RedisConnect;
-use server\Log\Log;
+use AtServer\RedisConnect;
+use AtServer\Log;
 
 
 class RedisCache implements CacheInterface {
