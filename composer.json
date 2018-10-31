@@ -1,5 +1,5 @@
 {
-    "name": "AtServer/cache",
+    "name": "at_server/cache",
     "description": "redis cache",
     "license": "MIT",
     "type": "library",
