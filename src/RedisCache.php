@@ -188,6 +188,39 @@ class RedisCache implements CacheInterface {
 		return false;
 	}
 
+
+	/**
+	 * 获取key 过期时间
+	 * @param      $key
+	 * @param null $default
+	 *
+	 * @return bool|int|null|string
+	 */
+	public function ttl( $key, $default = null ) {
+		try {
+			if ( $this->getRedis()->exists( $key ) ) {
+				$res = $this->getRedis()->ttl( $key );
+				if ( $res === false ) {
+					Log::warning( 'redis 出错: 获取 ' . $key . ' 返回 false' );
+					if ( ! is_null( $default ) ) {
+						return $default;
+					}
+				}
+				return $res;
+			} else {
+				return $default;
+			}
+		} catch ( \Exception $e ) {
+			Log::log( 'redis 错误：'.$e->getMessage() );
+			if ( $this->reConnectByException( $e ) ) {
+				return $this->get( $key, $default );
+			}
+		}
+		return false;
+	}
+
+
+
 	/**
 	 * 获取所有数据库
 	 *
