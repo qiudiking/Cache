@@ -935,4 +935,64 @@ class RedisCache implements CacheInterface {
 
 		return false;
 	}
+
+
+	/**
+	 * 有序集合 分数自增 (float/int)
+	 * @param     $key
+	 * @param     $member
+	 * @param int $value
+	 *
+	 * @return float
+	 */
+	public function zIncrby( $key, $member,  $value = 1 )
+	{
+		try{
+			if($key){
+				$res=$this->getRedis()->zIncrBy( $key, $value, $member );
+				if ( false ===$res && $this->getRedis()->ping() === false && $this->reConnect() ) {
+					return $this->zIncrBy(  $key, $value, $member );
+				}
+				return $res;
+			}
+		}catch(\Exception $e){
+			if ( $this->reConnectByException( $e ) ) {
+				return $this->zIncrby( $key, $member,  $value = 1 );
+			}
+		}
+	}
+
+	/**
+	 * Redis Zrevrange 命令返回有序集中，指定区间内的成员。
+	 * 其中成员的位置按分数值递减(从大到小)来排列。
+	 * 具有相同分数值的成员按字典序的逆序(reverse lexicographical order)排列。
+	 * @param      $key
+	 * @param int  $start
+	 * @param int  $end
+	 * @param null $default
+	 *
+	 * @return array|bool|null
+	 */
+	public function  zRevRange($key,$start = 0,$end = -1, $withscore = true, $default = null){
+		try {
+			if ( $this->getRedis()->exists( $key ) ) {
+				$res = $this->getRedis()->zRevRange( $key, $start, $end, $withscore );
+				if ( $res === false ) {
+					Log::warning( 'redis 出错: 获取 ' . $key . ' 返回 false' );
+					if ( ! is_null( $default ) ) {
+						return $default;
+					}
+				}
+				return $res;
+			} else {
+				return $default;
+			}
+		} catch ( \Exception $e ) {
+			Log::log( 'redis 错误：'.$e->getMessage() );
+			if ( $this->reConnectByException( $e ) ) {
+				return $this->zRevRange( $key,$start,$end,$default );
+			}
+		}
+		return false;
+	}
 }
