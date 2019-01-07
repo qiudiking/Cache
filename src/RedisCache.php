@@ -995,4 +995,66 @@ class RedisCache implements CacheInterface {
 		}
 		return false;
 	}
+
+
+	/**
+	 * Redis Zscore 命令返回有序集中，成员的分数值。 如果成员元素不是有序集 key 的成员，或 key 不存在，返回 nil 。
+	 * @param      $key
+	 * @param      $member
+	 * @param null $default
+	 *
+	 * @return array|bool|float|null
+	 */
+	public function zScore( $key, $member, $default = null){
+		try {
+			if ( $this->getRedis()->exists( $key ) ) {
+				$res = $this->getRedis()->zScore( $key, $member );
+				if ( $res === false ) {
+					Log::warning( 'redis 出错: 获取 ' . $key . ' 返回 false' );
+					if ( ! is_null( $default ) ) {
+						return $default;
+					}
+				}
+				return $res;
+			} else {
+				return $default;
+			}
+		} catch ( \Exception $e ) {
+			Log::log( 'redis 错误：'.$e->getMessage() );
+			if ( $this->reConnectByException( $e ) ) {
+				return $this->zScore( $key, $member, $default);
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Redis Zcard 命令用于计算集合中元素的数量。
+	 * @param      $key
+	 * @param null $default
+	 *
+	 * @return array|bool|int|null
+	 */
+	public function zCard( $key, $default = null){
+		try {
+			if ( $this->getRedis()->exists( $key ) ) {
+				$res = $this->getRedis()->zCard( $key );
+				if ( $res === false ) {
+					Log::warning( 'redis 出错: 获取 ' . $key . ' 返回 false' );
+					if ( ! is_null( $default ) ) {
+						return $default;
+					}
+				}
+				return $res;
+			} else {
+				return $default;
+			}
+		} catch ( \Exception $e ) {
+			Log::log( 'redis 错误：'.$e->getMessage() );
+			if ( $this->reConnectByException( $e ) ) {
+				return $this->zCard( $key, $default = null );
+			}
+		}
+		return false;
+	}
 }
